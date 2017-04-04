@@ -17,23 +17,27 @@ Demo :
 ---
 ```
 1. Step1 , Get data
-	sun@ubuntu:~/UsbKeyboardDataHacker$ tshark -r ./example.pcap -T fields -e usb.capdata
-	00:00:09:00:00:00:00:00
-	00:00:00:00:00:00:00:00
-	00:00:0f:00:00:00:00:00
-	00:00:00:00:00:00:00:00
-	00:00:04:00:00:00:00:00
-	00:00:00:00:00:00:00:00
-	00:00:0a:00:00:00:00:00
-	00:00:00:00:00:00:00:00
-	20:00:00:00:00:00:00:00
-	20:00:2f:00:00:00:00:00
-	...
+
+sun@ubuntu:~/UsbKeyboardDataHacker$ tshark -r ./example.pcap -T fields -e usb.capdata
+00:00:09:00:00:00:00:00
+00:00:00:00:00:00:00:00
+00:00:0f:00:00:00:00:00
+00:00:00:00:00:00:00:00
+00:00:04:00:00:00:00:00
+00:00:00:00:00:00:00:00
+00:00:0a:00:00:00:00:00
+00:00:00:00:00:00:00:00
+20:00:00:00:00:00:00:00
+20:00:2f:00:00:00:00:00
+...
+
 
 2. Step2 , decode
-	sun@ubuntu:~/UsbKeyboardDataHacker$ python UsbKeyboardDataHacker.py ./example.pcap 
-	[-] Unknow Key : 01
-	[-] Unknow Key : 01
-	[+] Found : flag{pr355_0nwards_a2fee6e0}
+
+sun@ubuntu:~/UsbKeyboardDataHacker$ python UsbKeyboardDataHacker.py ./example.pcap 
+[-] Unknow Key : 01
+[-] Unknow Key : 01
+[+] Found : flag{pr355_0nwards_a2fee6e0}
+
 ```
 
