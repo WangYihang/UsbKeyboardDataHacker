@@ -50,7 +50,7 @@ def main():
     print "[+] Found : %s" % (result)
 
     # clean the temp data
-    os.system("rm ./%s" % (DataFilePath))
+    os.system("rm ./%s" % (DataFileName))
 
 
 if __name__ == "__main__":
