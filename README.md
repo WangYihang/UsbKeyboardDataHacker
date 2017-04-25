@@ -41,3 +41,8 @@ sun@ubuntu:~/UsbKeyboardDataHacker$ python UsbKeyboardDataHacker.py ./example.pc
 
 ```
 
+Example video:
+```
+https://www.youtube.com/watch?v=unBwmcpXbhE
+```
+
