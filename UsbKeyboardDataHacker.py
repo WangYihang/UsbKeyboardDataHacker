@@ -42,7 +42,7 @@ def main():
         if Bytes[0] == "00":
             if Bytes[2] != "00":
                 result += normalKeys[Bytes[2]]
-        elif Bytes[0] == "20": # shift key is pressed.
+        elif int(Bytes[0],16) & 0b10 or int(Bytes[0],16) & 0b10000: # shift key is pressed.
             if Bytes[2] != "00":
                 result += shiftKeys[Bytes[2]]
         else:
