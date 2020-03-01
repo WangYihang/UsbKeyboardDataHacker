@@ -40,10 +40,10 @@ def main():
     for press in presses:
         Bytes = press.split(":")
         if Bytes[0] == "00":
-            if Bytes[2] != "00":
+            if Bytes[2] != "00" and normalKeys.get(Bytes[2]):
                 result += normalKeys[Bytes[2]]
         elif int(Bytes[0],16) & 0b10 or int(Bytes[0],16) & 0b100000: # shift key is pressed.
-            if Bytes[2] != "00":
+            if Bytes[2] != "00" and normalKeys.get(Bytes[2]):
                 result += shiftKeys[Bytes[2]]
         else:
             print("[-] Unknow Key : %s" % (Bytes[0]))
