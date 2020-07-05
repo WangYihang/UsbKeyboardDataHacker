@@ -29,7 +29,7 @@ def main():
     pcapFilePath = sys.argv[1]
     
     # get data of pcap
-    os.system("tshark -r %s -T fields -e usb.capdata > %s" % (pcapFilePath, DataFileName))
+    os.system("tshark -r %s -T fields -e usb.capdata 'usb.data_len == 8' > %s" % (pcapFilePath, DataFileName))
 
     # read data
     with open(DataFileName, "r") as f:
@@ -38,7 +38,12 @@ def main():
     # handle
     result = ""
     for press in presses:
-        Bytes = press.split(":")
+        if press == '':
+            continue
+        if ':' in press:
+            Bytes = press.split(":")
+        else:
+            Bytes = [press[i:i+2] for i in range(0, len(press), 2)]
         if Bytes[0] == "00":
             if Bytes[2] != "00" and normalKeys.get(Bytes[2]):
                 result += normalKeys[Bytes[2]]
