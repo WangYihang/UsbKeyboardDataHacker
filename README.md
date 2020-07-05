@@ -1,5 +1,5 @@
-Description : 
----
+## Usage
+
 ```
 Usage : 
         python UsbKeyboardHacker.py data.pcap
@@ -13,11 +13,11 @@ Author :
 
 ```
 
-Demo : 
----
-```
-1. Step1 , Get data
+## Example
 
+### Step1: Get data
+
+```
 sun@ubuntu:~/UsbKeyboardDataHacker$ tshark -r ./example.pcap -T fields -e usb.capdata
 00:00:09:00:00:00:00:00
 00:00:00:00:00:00:00:00
@@ -30,20 +30,24 @@ sun@ubuntu:~/UsbKeyboardDataHacker$ tshark -r ./example.pcap -T fields -e usb.ca
 20:00:00:00:00:00:00:00
 20:00:2f:00:00:00:00:00
 ...
+```
 
+### Step2: decode
 
-2. Step2 , decode
-
+```
 sun@ubuntu:~/UsbKeyboardDataHacker$ python UsbKeyboardDataHacker.py ./example.pcap 
 [-] Unknow Key : 01
 [-] Unknow Key : 01
 [+] Found : flag{pr355_0nwards_a2fee6e0}
-
 ```
 
-Example video:
----
-```
-https://www.youtube.com/watch?v=unBwmcpXbhE
-```
+### Additional Video
+
+* https://www.youtube.com/watch?v=unBwmcpXbhE
+
+
+## Acknowledgment
+
+* [@ChristopherKai](https://github.com/ChristopherKai)
+* [@seadog007](https://github.com/seadog007)
 
