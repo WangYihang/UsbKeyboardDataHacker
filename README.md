@@ -50,4 +50,4 @@ sun@ubuntu:~/UsbKeyboardDataHacker$ python UsbKeyboardDataHacker.py ./example.pc
 
 * [@ChristopherKai](https://github.com/ChristopherKai)
 * [@seadog007](https://github.com/seadog007)
-
+* [@hurricane618](https://github.com/hurricane618)
