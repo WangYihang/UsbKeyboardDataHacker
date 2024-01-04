@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "usbkeyboarddatahacker"
+version = "0.1.0"
+description = ""
+authors = ["Yihang Wang <wangyihanger@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+numpy = "^1.26.2"
+matplotlib = "^3.8.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

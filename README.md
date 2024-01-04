@@ -1,4 +1,15 @@
+## Installation
+
+```
+python3 -m pip install poetry
+poetry install
+```
+
 ## Usage
+
+```
+poetry run python UsbKeyboardDataHacker.py ./example.pcap
+```
 
 ```
 Usage : 
