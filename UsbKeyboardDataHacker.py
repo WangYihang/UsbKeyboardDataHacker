@@ -2,6 +2,8 @@
 
 import sys
 import os
+import logging
+import subprocess
 
 DataFileName = "usb.dat"
 
@@ -11,52 +13,63 @@ normalKeys = {"04":"a", "05":"b", "06":"c", "07":"d", "08":"e", "09":"f", "0a":"
 
 shiftKeys = {"04":"A", "05":"B", "06":"C", "07":"D", "08":"E", "09":"F", "0a":"G", "0b":"H", "0c":"I", "0d":"J", "0e":"K", "0f":"L", "10":"M", "11":"N", "12":"O", "13":"P", "14":"Q", "15":"R", "16":"S", "17":"T", "18":"U", "19":"V", "1a":"W", "1b":"X", "1c":"Y", "1d":"Z","1e":"!", "1f":"@", "20":"#", "21":"$", "22":"%", "23":"^","24":"&","25":"*","26":"(","27":")","28":"<RET>","29":"<ESC>","2a":"<DEL>", "2b":"\t","2c":"<SPACE>","2d":"_","2e":"+","2f":"{","30":"}","31":"|","32":"<NON>","33":":","34":"\"","35":"<GA>","36":"<","37":">","38":"?","39":"<CAP>","3a":"<F1>","3b":"<F2>", "3c":"<F3>","3d":"<F4>","3e":"<F5>","3f":"<F6>","40":"<F7>","41":"<F8>","42":"<F9>","43":"<F10>","44":"<F11>","45":"<F12>"}
 
-def main():
-    # check argv
-    if len(sys.argv) != 2:
-        print("Usage : ")
-        print("        python UsbKeyboardHacker.py data.pcap")
-        print("Tips : ")
-        print("        To use this python script , you must install the tshark first.")
-        print("        You can use `sudo apt-get install tshark` to install it")
-        print("Author : ")
-        print("        WangYihang <wangyihanger@gmail.com>")
-        print("        If you have any questions , please contact me by email.")
-        print("        Thank you for using.")
-        exit(1)
+def setup_logging():
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-    # get argv
-    pcapFilePath = sys.argv[1]
-    
-    # get data of pcap
-    os.system("tshark -r %s -T fields -e usb.capdata 'usb.data_len == 8' > %s" % (pcapFilePath, DataFileName))
+def parse_pcap_file(pcapFilePath):
+    try:
+        subprocess.run(["tshark", "-r", pcapFilePath, "-T", "fields", "-e", "usb.capdata", "usb.data_len == 8"], check=True, stdout=open(DataFileName, "w"))
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Error running tshark: {e}")
+        sys.exit(1)
 
-    # read data
-    with open(DataFileName, "r") as f:
-        for line in f:
-            presses.append(line[0:-1])
-    # handle
+def read_data_file():
+    try:
+        with open(DataFileName, "r") as f:
+            for line in f:
+                presses.append(line.strip())
+    except IOError as e:
+        logging.error(f"Error reading data file: {e}")
+        sys.exit(1)
+
+def process_presses():
     result = ""
     for press in presses:
-        if press == '':
+        if not press:
             continue
-        if ':' in press:
-            Bytes = press.split(":")
-        else:
-            Bytes = [press[i:i+2] for i in range(0, len(press), 2)]
+        Bytes = press.split(":") if ':' in press else [press[i:i+2] for i in range(0, len(press), 2)]
         if Bytes[0] == "00":
             if Bytes[2] != "00" and normalKeys.get(Bytes[2]):
                 result += normalKeys[Bytes[2]]
-        elif int(Bytes[0],16) & 0b10 or int(Bytes[0],16) & 0b100000: # shift key is pressed.
-            if Bytes[2] != "00" and normalKeys.get(Bytes[2]):
+        elif int(Bytes[0], 16) & 0b10 or int(Bytes[0], 16) & 0b100000:  # shift key is pressed.
+            if Bytes[2] != "00" and shiftKeys.get(Bytes[2]):
                 result += shiftKeys[Bytes[2]]
         else:
-            print("[-] Unknow Key : %s" % (Bytes[0]))
-    print("[+] Found : %s" % (result))
+            logging.warning(f"Unknown Key: {Bytes[0]}")
+    return result
 
-    # clean the temp data
-    os.system("rm ./%s" % (DataFileName))
+def main():
+    setup_logging()
+    
+    if len(sys.argv) != 2:
+        logging.error("Usage: python UsbKeyboardHacker.py data.pcap")
+        logging.info("Tips: To use this python script, you must install tshark first.")
+        logging.info("You can use `sudo apt-get install tshark` to install it")
+        logging.info("Author: WangYihang <wangyihanger@gmail.com>")
+        sys.exit(1)
 
+    pcapFilePath = sys.argv[1]
+    
+    parse_pcap_file(pcapFilePath)
+    read_data_file()
+    
+    result = process_presses()
+    logging.info(f"Found: {result}")
+
+    try:
+        os.remove(DataFileName)
+    except OSError as e:
+        logging.error(f"Error removing temporary data file: {e}")
 
 if __name__ == "__main__":
     main()
