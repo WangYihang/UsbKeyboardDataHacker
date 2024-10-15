@@ -2,7 +2,6 @@
 
 import sys
 import os
-import logging
 import subprocess
 import argparse
 
@@ -14,14 +13,11 @@ normalKeys = {"04":"a", "05":"b", "06":"c", "07":"d", "08":"e", "09":"f", "0a":"
 
 shiftKeys = {"04":"A", "05":"B", "06":"C", "07":"D", "08":"E", "09":"F", "0a":"G", "0b":"H", "0c":"I", "0d":"J", "0e":"K", "0f":"L", "10":"M", "11":"N", "12":"O", "13":"P", "14":"Q", "15":"R", "16":"S", "17":"T", "18":"U", "19":"V", "1a":"W", "1b":"X", "1c":"Y", "1d":"Z","1e":"!", "1f":"@", "20":"#", "21":"$", "22":"%", "23":"^","24":"&","25":"*","26":"(","27":")","28":"<RET>","29":"<ESC>","2a":"<DEL>", "2b":"\t","2c":"<SPACE>","2d":"_","2e":"+","2f":"{","30":"}","31":"|","32":"<NON>","33":":","34":"\"","35":"<GA>","36":"<","37":">","38":"?","39":"<CAP>","3a":"<F1>","3b":"<F2>", "3c":"<F3>","3d":"<F4>","3e":"<F5>","3f":"<F6>","40":"<F7>","41":"<F8>","42":"<F9>","43":"<F10>","44":"<F11>","45":"<F12>"}
 
-def setup_logging():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
 def parse_pcap_file(pcapFilePath):
     try:
         subprocess.run(["tshark", "-r", pcapFilePath, "-T", "fields", "-e", "usb.capdata", "usb.data_len == 8"], check=True, stdout=open(DataFileName, "w"))
     except subprocess.CalledProcessError as e:
-        logging.error(f"Error running tshark: {e}")
+        print(f"Error running tshark: {e}")
         sys.exit(1)
 
 def read_data_file():
@@ -30,7 +26,7 @@ def read_data_file():
             for line in f:
                 presses.append(line.strip())
     except IOError as e:
-        logging.error(f"Error reading data file: {e}")
+        print(f"Error reading data file: {e}")
         sys.exit(1)
 
 def process_presses():
@@ -46,29 +42,28 @@ def process_presses():
             if Bytes[2] != "00" and shiftKeys.get(Bytes[2]):
                 result += shiftKeys[Bytes[2]]
         else:
-            logging.warning(f"Unknown Key: {Bytes[0]}")
+            print(f"Unknown Key: {Bytes[0]}")
     return result
 
 def main():
-    setup_logging()
     parser = argparse.ArgumentParser(description="UsbKeyboardDataHacker")
-    parser.add_argument("--input", help="input pcap file path")
+    parser.add_argument("--input", help="input pcap file path", required=True)
     args = parser.parse_args()
 
     if not os.path.exists(args.input):
-        logging.error(f"Input file does not exist: {args.input}")
+        print(f"Input file does not exist: {args.input}")
         sys.exit(1)
 
     parse_pcap_file(args.input)
     read_data_file()
 
     result = process_presses()
-    logging.info(f"Found: {result}")
+    print(f"Found: {result}")
 
     try:
         os.remove(DataFileName)
     except OSError as e:
-        logging.error(f"Error removing temporary data file: {e}")
+        print(f"Error removing temporary data file: {e}")
 
 if __name__ == "__main__":
     main()
