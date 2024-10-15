@@ -1,63 +1,33 @@
-## Installation
-
-```
-python3 -m pip install poetry
-poetry install
-```
-
 ## Usage
 
-```
-poetry run python UsbKeyboardDataHacker.py ./example.pcap
-```
+```bash
+$ python3 -m pip install poetry
+$ git clone https://github.com/WangYihang/UsbKeyboardDataHacker.git
+$ cd UsbKeyboardDataHacker
+$ poetry install
+$ poetry run python UsbKeyboardDataHacker.py --input tests/example.pcap
 
-```
-Usage : 
-        python UsbKeyboardHacker.py data.pcap
-Tips : 
-        To use this python script , you must install the tshark first.
-        You can use `sudo apt-get install tshark` to install it
-Author : 
-        WangYihang <wangyihanger@gmail.com>
-        If you have any questions , please contact me by email.
-        Thank you for using.
-
-```
-
-## Example
-
-### Step1: Get data
-
-```
-sun@ubuntu:~/UsbKeyboardDataHacker$ tshark -r ./example.pcap -T fields -e usb.capdata
-00:00:09:00:00:00:00:00
-00:00:00:00:00:00:00:00
-00:00:0f:00:00:00:00:00
-00:00:00:00:00:00:00:00
-00:00:04:00:00:00:00:00
-00:00:00:00:00:00:00:00
-00:00:0a:00:00:00:00:00
-00:00:00:00:00:00:00:00
-20:00:00:00:00:00:00:00
-20:00:2f:00:00:00:00:00
+poetry run python UsbKeyboardDataHacker.py --input tests/example.pcap
+2024-10-15 21:47:39 ubuntu __main__[63413] INFO time=2017-03-23 09:07:16.777061, key='f'
+2024-10-15 21:47:39 ubuntu __main__[63413] INFO time=2017-03-23 09:07:16.914192, key=''
+2024-10-15 21:47:39 ubuntu __main__[63413] INFO time=2017-03-23 09:07:17.076812, key='l'
+2024-10-15 21:47:39 ubuntu __main__[63413] INFO time=2017-03-23 09:07:17.176842, key=''
 ...
+2024-10-15 21:47:39 ubuntu __main__[63413] INFO time=2017-03-23 09:07:36.514108, key=''
+2024-10-15 21:47:39 ubuntu __main__[63413] INFO time=2017-03-23 09:07:40.230170, key='', modifiers=left_ctrl
+2024-10-15 21:47:39 ubuntu __main__[63413] INFO time=2017-03-23 09:07:40.330012, key='c', modifiers=left_ctrl
+flag{pr355_0nwards_a2fee6e0}c
 ```
 
-### Step2: decode
-
-```
-sun@ubuntu:~/UsbKeyboardDataHacker$ python UsbKeyboardDataHacker.py ./example.pcap 
-[-] Unknow Key : 01
-[-] Unknow Key : 01
-[+] Found : flag{pr355_0nwards_a2fee6e0}
-```
 
 ### Additional Video
 
 * https://www.youtube.com/watch?v=unBwmcpXbhE
 
+### References 
 
-https://www.usb.org/sites/default/files/documents/hid1_11.pdf
++ https://www.usb.org/sites/default/files/documents/hid1_11.pdf
++ https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf
 
 ## Acknowledgment
 
