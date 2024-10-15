@@ -10,7 +10,7 @@ python = "^3.10"
 numpy = "^1.26.2"
 matplotlib = "^3.8.2"
 pyshark = "^0.6"
-tqdm = "^4.66.5"
+coloredlogs = "^15.0.1"
 
 
 [build-system]

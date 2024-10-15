@@ -3,14 +3,18 @@
 import sys
 import os
 import argparse
-import tqdm
 import pyshark
 from config import KEY_MAPPINGS
+import coloredlogs
+import logging
+import datetime
 
+logger = logging.getLogger(__name__)
+coloredlogs.install(level='DEBUG', logger=logger)
 
 def parse_pcap_file(filepath):
     cap = pyshark.FileCapture(filepath)
-    for packet in tqdm.tqdm(cap):
+    for packet in cap:
         if hasattr(packet, "DATA"):
             usbhid_data = packet.DATA.get_field("usbhid_data")
             usb_capdata = packet.DATA.get_field("usb_capdata")
@@ -71,7 +75,27 @@ def process_key(timestamp, press):
     if right_gui:
         keys.append("<RIGHT_GUI>")
     keys.sort()
-    print(timestamp, key1)
+    pressed_modifiers = []
+    if left_ctrl:
+        pressed_modifiers.append("left_ctrl")
+    if left_shift:
+        pressed_modifiers.append("left_shift")
+    if left_alt:
+        pressed_modifiers.append("left_alt")
+    if left_gui:
+        pressed_modifiers.append("left_gui")
+    if right_ctrl:
+        pressed_modifiers.append("right_ctrl")
+    if right_shift:
+        pressed_modifiers.append("right_shift")
+    if right_alt:
+        pressed_modifiers.append("right_alt")
+    if right_gui:
+        pressed_modifiers.append("right_gui")
+    
+    modifiers_str = ", ".join(pressed_modifiers)
+    formatted_time = datetime.datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S.%f')
+    logger.info(f"time={formatted_time}, key={repr(key1)}" + (f", modifiers={modifiers_str}" if modifiers_str else ""))
     return key1
 
 
@@ -81,7 +105,7 @@ def main():
     args = parser.parse_args()
 
     if not os.path.exists(args.input):
-        print(f"Input file does not exist: {args.input}")
+        logger.error(f"Input file does not exist: {args.input}")
         sys.exit(1)
 
     buffer = []
