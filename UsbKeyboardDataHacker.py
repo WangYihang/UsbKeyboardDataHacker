@@ -4,6 +4,7 @@ import sys
 import os
 import logging
 import subprocess
+import argparse
 
 DataFileName = "usb.dat"
 
@@ -50,19 +51,17 @@ def process_presses():
 
 def main():
     setup_logging()
-    
-    if len(sys.argv) != 2:
-        logging.error("Usage: python UsbKeyboardHacker.py data.pcap")
-        logging.info("Tips: To use this python script, you must install tshark first.")
-        logging.info("You can use `sudo apt-get install tshark` to install it")
-        logging.info("Author: WangYihang <wangyihanger@gmail.com>")
+    parser = argparse.ArgumentParser(description="UsbKeyboardDataHacker")
+    parser.add_argument("--input", help="input pcap file path")
+    args = parser.parse_args()
+
+    if not os.path.exists(args.input):
+        logging.error(f"Input file does not exist: {args.input}")
         sys.exit(1)
 
-    pcapFilePath = sys.argv[1]
-    
-    parse_pcap_file(pcapFilePath)
+    parse_pcap_file(args.input)
     read_data_file()
-    
+
     result = process_presses()
     logging.info(f"Found: {result}")
 
