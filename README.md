@@ -57,6 +57,8 @@ sun@ubuntu:~/UsbKeyboardDataHacker$ python UsbKeyboardDataHacker.py ./example.pc
 * https://www.youtube.com/watch?v=unBwmcpXbhE
 
 
+https://www.usb.org/sites/default/files/documents/hid1_11.pdf
+
 ## Acknowledgment
 
 * [@ChristopherKai](https://github.com/ChristopherKai)

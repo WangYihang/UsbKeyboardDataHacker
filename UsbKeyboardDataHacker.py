@@ -2,48 +2,78 @@
 
 import sys
 import os
-import subprocess
 import argparse
+import tqdm
+import pyshark
+from config import KEY_MAPPINGS
 
-DataFileName = "usb.dat"
 
-presses = []
+def parse_pcap_file(filepath):
+    cap = pyshark.FileCapture(filepath)
+    for packet in tqdm.tqdm(cap):
+        if hasattr(packet, "DATA"):
+            usbhid_data = packet.DATA.get_field("usbhid_data")
+            usb_capdata = packet.DATA.get_field("usb_capdata")
+            timestamp = float(packet.sniff_timestamp)
+            for data in [usbhid_data, usb_capdata]:
+                if data:
+                    yield (timestamp, data)
 
-normalKeys = {"04":"a", "05":"b", "06":"c", "07":"d", "08":"e", "09":"f", "0a":"g", "0b":"h", "0c":"i", "0d":"j", "0e":"k", "0f":"l", "10":"m", "11":"n", "12":"o", "13":"p", "14":"q", "15":"r", "16":"s", "17":"t", "18":"u", "19":"v", "1a":"w", "1b":"x", "1c":"y", "1d":"z","1e":"1", "1f":"2", "20":"3", "21":"4", "22":"5", "23":"6","24":"7","25":"8","26":"9","27":"0","28":"<RET>","29":"<ESC>","2a":"<DEL>", "2b":"\t","2c":"<SPACE>","2d":"-","2e":"=","2f":"[","30":"]","31":"\\","32":"<NON>","33":";","34":"'","35":"<GA>","36":",","37":".","38":"/","39":"<CAP>","3a":"<F1>","3b":"<F2>", "3c":"<F3>","3d":"<F4>","3e":"<F5>","3f":"<F6>","40":"<F7>","41":"<F8>","42":"<F9>","43":"<F10>","44":"<F11>","45":"<F12>","54":"/","55":"*","56":"-","57":"+","59":"1","5a":"2","5b":"3","5c":"4","5d":"5","5e":"6","5f":"7","60":"8","61":"9","62":"0","63":".","67":"="}
 
-shiftKeys = {"04":"A", "05":"B", "06":"C", "07":"D", "08":"E", "09":"F", "0a":"G", "0b":"H", "0c":"I", "0d":"J", "0e":"K", "0f":"L", "10":"M", "11":"N", "12":"O", "13":"P", "14":"Q", "15":"R", "16":"S", "17":"T", "18":"U", "19":"V", "1a":"W", "1b":"X", "1c":"Y", "1d":"Z","1e":"!", "1f":"@", "20":"#", "21":"$", "22":"%", "23":"^","24":"&","25":"*","26":"(","27":")","28":"<RET>","29":"<ESC>","2a":"<DEL>", "2b":"\t","2c":"<SPACE>","2d":"_","2e":"+","2f":"{","30":"}","31":"|","32":"<NON>","33":":","34":"\"","35":"<GA>","36":"<","37":">","38":"?","39":"<CAP>","3a":"<F1>","3b":"<F2>", "3c":"<F3>","3d":"<F4>","3e":"<F5>","3f":"<F6>","40":"<F7>","41":"<F8>","42":"<F9>","43":"<F10>","44":"<F11>","45":"<F12>"}
+def process_key(timestamp, press):
+    items = [int(i, 16) for i in press.split(":")]
+    if len(items) != 8:
+        return
+    modifier_keys, _, key1, _, _, _, _, _ = items
+    """
+    Bit Key 
+        0 LEFT CTRL
+        1 LEFT SHIFT
+        2 LEFT ALT
+        3 LEFT GUI 
+        4 RIGHT CTRL
+        5 RIGHT SHIFT
+        6 RIGHT ALT
+        7 RIGHT GUI 
 
-def parse_pcap_file(pcapFilePath):
-    try:
-        subprocess.run(["tshark", "-r", pcapFilePath, "-T", "fields", "-e", "usb.capdata", "usb.data_len == 8"], check=True, stdout=open(DataFileName, "w"))
-    except subprocess.CalledProcessError as e:
-        print(f"Error running tshark: {e}")
-        sys.exit(1)
+    [1] https://www.usb.org/sites/default/files/documents/hid1_11.pdf
+    """
+    left_ctrl = (modifier_keys >> 0) & 0x01
+    left_shift = (modifier_keys >> 1) & 0x01
+    left_alt = (modifier_keys >> 2) & 0x01
+    left_gui = (modifier_keys >> 3) & 0x01
+    right_ctrl = (modifier_keys >> 4) & 0x01
+    right_shift = (modifier_keys >> 5) & 0x01
+    right_alt = (modifier_keys >> 6) & 0x01
+    right_gui = (modifier_keys >> 7) & 0x01
 
-def read_data_file():
-    try:
-        with open(DataFileName, "r") as f:
-            for line in f:
-                presses.append(line.strip())
-    except IOError as e:
-        print(f"Error reading data file: {e}")
-        sys.exit(1)
+    """
+    10 Keyboard/Keypad Page (0x07)
 
-def process_presses():
-    result = ""
-    for press in presses:
-        if not press:
-            continue
-        Bytes = press.split(":") if ':' in press else [press[i:i+2] for i in range(0, len(press), 2)]
-        if Bytes[0] == "00":
-            if Bytes[2] != "00" and normalKeys.get(Bytes[2]):
-                result += normalKeys[Bytes[2]]
-        elif int(Bytes[0], 16) & 0b10 or int(Bytes[0], 16) & 0b100000:  # shift key is pressed.
-            if Bytes[2] != "00" and shiftKeys.get(Bytes[2]):
-                result += shiftKeys[Bytes[2]]
-        else:
-            print(f"Unknown Key: {Bytes[0]}")
-    return result
+    [2] https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf
+    """
+    key1 = KEY_MAPPINGS.get(key1, ("", ""))[1 if (left_shift or right_shift) else 0]
+    keys = [key1]
+    if left_ctrl:
+        keys.append("<LEFT_CTRL>")
+    if left_shift:
+        keys.append("<LEFT_SHIFT>")
+    if left_alt:
+        keys.append("<LEFT_ALT>")
+    if left_gui:
+        keys.append("<LEFT_GUI>")
+    if right_ctrl:
+        keys.append("<RIGHT_CTRL>")
+    if right_shift:
+        keys.append("<RIGHT_SHIFT>")
+    if right_alt:
+        keys.append("<RIGHT_ALT>")
+    if right_gui:
+        keys.append("<RIGHT_GUI>")
+    keys.sort()
+    print(timestamp, key1)
+    return key1
+
 
 def main():
     parser = argparse.ArgumentParser(description="UsbKeyboardDataHacker")
@@ -54,16 +84,13 @@ def main():
         print(f"Input file does not exist: {args.input}")
         sys.exit(1)
 
-    parse_pcap_file(args.input)
-    read_data_file()
+    buffer = []
+    for timestamp, press in parse_pcap_file(args.input):
+        key = process_key(timestamp, press)
+        if key:
+            buffer.append(key)
+    print("".join(buffer))
 
-    result = process_presses()
-    print(f"Found: {result}")
-
-    try:
-        os.remove(DataFileName)
-    except OSError as e:
-        print(f"Error removing temporary data file: {e}")
 
 if __name__ == "__main__":
     main()
