@@ -1,13 +1,21 @@
-## Usage
+
+## Introduction
+
+A forensic script that can help you to extract USB keyboard pcap files.
+
+## Installation
 
 ```bash
-$ python3 -m pip install poetry
-$ git clone https://github.com/WangYihang/UsbKeyboardDataHacker.git
-$ cd UsbKeyboardDataHacker
-$ poetry install
-$ poetry run python UsbKeyboardDataHacker.py --input tests/example.pcap
+python -m pip install poetry
+git clone https://github.com/WangYihang/UsbKeyboardDataHacker.git
+cd UsbKeyboardDataHacker
+poetry install
+```
 
-poetry run python UsbKeyboardDataHacker.py --input tests/example.pcap
+## Example
+
+```bash
+$ poetry run python UsbKeyboardDataHacker.py --input tests/example.pcap
 2024-10-15 21:47:39 ubuntu __main__[63413] INFO time=2017-03-23 09:07:16.777061, key='f'
 2024-10-15 21:47:39 ubuntu __main__[63413] INFO time=2017-03-23 09:07:16.914192, key=''
 2024-10-15 21:47:39 ubuntu __main__[63413] INFO time=2017-03-23 09:07:17.076812, key='l'
