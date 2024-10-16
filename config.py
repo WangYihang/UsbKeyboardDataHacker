@@ -8,7 +8,6 @@
 # The first value is the key when the shift key is not pressed
 # The second value is the key when the shift key is pressed
 KEY_MAPPINGS = {
-    0x00: ("<Reserved>", "<Reserved>"),
     0x01: ("<ErrorRollOver>", "<ErrorRollOver>"),
     0x02: ("<PostFail>", "<PostFail>"),
     0x03: ("<ErrorUndefined>", "<ErrorUndefined>"),
